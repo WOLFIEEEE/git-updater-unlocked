@@ -152,7 +152,7 @@ class Messages {
 	/**
 	 * Create error message or 401 (Authentication Error) error.
 	 * Usually 401 as private repo with no token set or incorrect user/pass.
-	 * GitHub uses a 404 error as an authentication error.
+	 * GitHub uses a 404 error as an authentication error for private repos.
 	 */
 	public function show_authentication_error_message() {
 		$_authentication = false;
@@ -163,15 +163,34 @@ class Messages {
 				if ( ! WP_Dismiss_Notice::is_admin_notice_active( 'authentication-error-1' ) ) {
 					return;
 				}
+				$settings_url = is_multisite() ? network_admin_url( 'settings.php?page=git-updater' ) : admin_url( 'options-general.php?page=git-updater' );
 				?>
 				<div data-dismissible="authentication-error-1" class="notice-error notice is-dismissible">
 					<p>
+						<strong><?php esc_html_e( 'Git Updater - Private Repository Detected', 'git-updater' ); ?></strong>
+						<br>
 						<?php
-						esc_html_e( 'Git Updater Error Code:', 'git-updater' );
+						esc_html_e( 'Error Code:', 'git-updater' );
 						echo ' ' . esc_attr( $repo['code'] );
 						?>
 						<br>
-						<?php esc_html_e( 'There is probably an access token or password error on the Git Updater Settings page.', 'git-updater' ); ?>
+						<?php
+						if ( 404 === $repo['code'] && 'github' === $repo['git'] ) {
+							esc_html_e( 'This appears to be a private GitHub repository. GitHub returns 404 errors for private repositories without authentication.', 'git-updater' );
+						} elseif ( 401 === $repo['code'] ) {
+							esc_html_e( 'Authentication failed. Your access token may be incorrect or expired.', 'git-updater' );
+						} else {
+							esc_html_e( 'There is an access token or authentication error.', 'git-updater' );
+						}
+						?>
+						<br><br>
+						<strong><?php esc_html_e( 'To fix this:', 'git-updater' ); ?></strong>
+						<ol style="margin-left: 20px;">
+							<li><?php echo wp_kses_post( sprintf( __( 'Go to <a href="%s">Git Updater Settings</a>', 'git-updater' ), esc_url( $settings_url ) ) ); ?></li>
+							<li><?php esc_html_e( 'Navigate to the GitHub tab', 'git-updater' ); ?></li>
+							<li><?php echo wp_kses_post( __( 'Enter your <strong>GitHub Personal Access Token</strong>', 'git-updater' ) ); ?></li>
+							<li><?php echo wp_kses_post( sprintf( __( 'Create a token at: <a href="%s" target="_blank">GitHub Settings → Developer settings → Personal access tokens</a>', 'git-updater' ), 'https://github.com/settings/tokens' ) ); ?></li>
+						</ol>
 					</p>
 				</div>
 				<?php
@@ -212,8 +231,15 @@ class Messages {
 
 	/**
 	 * Generate information message to purchase.
+	 * DISABLED: Payment wall removed - no license required.
 	 */
 	public function get_license() {
+		// PAYMENT WALL REMOVED: This function used to show a license purchase nag message.
+		// Now it does nothing - plugin is completely free with all features unlocked.
+		return;
+
+		// Original license nag code commented out
+		/*
 		if ( ( ! gu_fs()->is_not_paying() )
 			|| ! WP_Dismiss_Notice::is_admin_notice_active( 'license-3' )
 		) {
@@ -231,5 +257,6 @@ class Messages {
 			</p>
 		</div>
 		<?php
+		*/
 	}
 }

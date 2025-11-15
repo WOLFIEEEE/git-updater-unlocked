@@ -515,14 +515,47 @@ class GitHub_API extends API implements API_Interface {
 	 * Print the GitHub text.
 	 */
 	public function print_section_github_info() {
-		esc_html_e( 'Enter your GitHub Access Token. Leave empty for public repositories.', 'git-updater' );
+		?>
+		<p>
+			<strong><?php esc_html_e( 'GitHub Access Token Setup:', 'git-updater' ); ?></strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'A GitHub Personal Access Token is required for:', 'git-updater' ); ?>
+		</p>
+		<ul style="list-style-type: disc; margin-left: 20px;">
+			<li><?php esc_html_e( 'Private repositories (required)', 'git-updater' ); ?></li>
+			<li><?php esc_html_e( 'Avoiding GitHub API rate limits (recommended)', 'git-updater' ); ?></li>
+			<li><?php esc_html_e( 'Accessing repository contents without restrictions', 'git-updater' ); ?></li>
+		</ul>
+		<p>
+			<?php
+			echo wp_kses_post(
+				sprintf(
+					__( 'Create your token at: <a href="%s" target="_blank">GitHub Settings → Developer settings → Personal access tokens</a>', 'git-updater' ),
+					'https://github.com/settings/tokens/new?description=Git%20Updater&scopes=repo'
+				)
+			);
+			?>
+			<br>
+			<em><?php esc_html_e( 'Required scope: repo (Full control of private repositories)', 'git-updater' ); ?></em>
+		</p>
+		<?php
 	}
 
 	/**
 	 * Print the GitHub Personal Access Token text.
 	 */
 	public function print_section_github_access_token() {
-		esc_html_e( 'Enter your personal GitHub.com or GitHub Enterprise Access Token to avoid API access limits.', 'git-updater' );
+		?>
+		<p>
+			<strong><?php esc_html_e( 'Enter your GitHub Personal Access Token below:', 'git-updater' ); ?></strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'This token will be used for all GitHub repositories and helps avoid rate limits.', 'git-updater' ); ?>
+			<br>
+			<?php esc_html_e( 'For private repositories, you can set repository-specific tokens in the "GitHub Private Settings" section below.', 'git-updater' ); ?>
+		</p>
+		<?php
 		$icon = plugin_dir_url( dirname( __DIR__, 2 ) ) . 'assets/github-logo.svg';
 		printf( '<img class="git-oauth-icon" src="%s" alt="GitHub logo" />', esc_attr( $icon ) );
 	}

@@ -317,13 +317,34 @@ class Base {
 		$this->{$repo->type} = $repo;
 		$this->set_defaults( $repo->type );
 
-		if ( $repo_api->get_remote_info( $file ) ) {
+		// Try to fetch repo metadata first to determine if it's private
+		// This allows proper detection even without authentication
+		$meta_fetched = false;
+		if ( ! self::is_wp_cli() ) {
+			$meta_fetched = $repo_api->get_repo_meta();
+		}
+
+		// Attempt to fetch remote info
+		$remote_info_success = $repo_api->get_remote_info( $file );
+
+		// If file fetch failed but we got metadata, it might be a private repo without token
+		if ( ! $remote_info_success && $meta_fetched ) {
+			// Mark as private repo that needs authentication
+			if ( ! isset( $repo->is_private ) ) {
+				$repo->is_private = true;
+			}
+		}
+
+		if ( $remote_info_success ) {
 			if ( ! self::is_wp_cli() ) {
 				$repo_api->get_repo_contents();
 				$repo_api->get_repo_assets();
 				$repo_api->get_remote_readme();
 				$repo_api->get_remote_changes( '' );
-				$repo_api->get_repo_meta();
+				// Fetch meta again if not already fetched
+				if ( ! $meta_fetched ) {
+					$repo_api->get_repo_meta();
+				}
 				if ( ! empty( self::$options['branch_switch'] ) ) {
 					$repo_api->get_remote_branches();
 				}

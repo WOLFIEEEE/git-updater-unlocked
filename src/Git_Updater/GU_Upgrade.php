@@ -39,7 +39,8 @@ final class GU_Upgrade {
 	public function run() {
 		$options    = $this->get_class_vars( 'Base', 'options' );
 		$db_version = isset( $options['db_version'] ) && ! is_integer( $options['db_version'] ) ? $options['db_version'] : '6.0.0';
-		$this->schedule_access_token_cleanup();
+		// PAYMENT WALL REMOVED: No longer schedules token cleanup
+		// $this->schedule_access_token_cleanup();
 
 		if ( version_compare( $db_version, $this->db_version, '=' ) ) {
 			return;
@@ -96,6 +97,7 @@ final class GU_Upgrade {
 
 	/**
 	 * Check for deletion of cron event.
+	 * DISABLED: Token deletion removed - tokens are never deleted.
 	 *
 	 * @param null|bool|WP_Error $pre       Value to return instead. Default null to continue unscheduling the event.
 	 * @param int                $timestamp Timestamp for when to run the event.
@@ -104,6 +106,11 @@ final class GU_Upgrade {
 	 * @return null|bool|WP_Error
 	 */
 	public function pre_unschedule_event( $pre, $timestamp, $hook ) {
+		// PAYMENT WALL REMOVED: No longer calls flush_tokens() to delete access tokens
+		return $pre;
+
+		// Original code commented out
+		/*
 		if ( 'gu_delete_access_tokens' === $hook ) {
 			$days = ( wp_next_scheduled( 'gu_delete_access_tokens' ) - time() ) / \DAY_IN_SECONDS;
 			if ( $days > 29 ) {
@@ -111,16 +118,24 @@ final class GU_Upgrade {
 			}
 		}
 		return $pre;
+		*/
 	}
 
 	/**
 	 * Update for non-password options.
+	 * DISABLED: Token deletion removed - all users can keep their tokens.
 	 *
 	 * @since 12.0.0
 	 *
 	 * @return void
 	 */
 	public function flush_tokens() {
+		// PAYMENT WALL REMOVED: This function used to delete access tokens for non-premium users.
+		// Now it does nothing - all users can keep their tokens indefinitely.
+		return;
+
+		// Original premium check code commented out - no longer deletes tokens
+		/*
 		if ( gu_fs()->can_use_premium_code() || false === wp_next_scheduled( 'gu_delete_access_tokens' ) ) {
 			return;
 		}
@@ -141,20 +156,29 @@ final class GU_Upgrade {
 			ARRAY_FILTER_USE_BOTH
 		);
 		update_site_option( 'git_updater', $new_options );
+		*/
 	}
 
 	/**
 	 * Schedule cleanup of the access tokens.
+	 * DISABLED: Token deletion removed - tokens are never deleted.
 	 *
 	 * @since 12.0.0
 	 *
 	 * @return void
 	 */
 	private function schedule_access_token_cleanup() {
+		// PAYMENT WALL REMOVED: No longer schedules token deletion
+		// Tokens will be kept indefinitely for all users
+		return;
+
+		// Original code commented out - no longer schedules token cleanup
+		/*
 		if ( false === wp_next_scheduled( 'gu_delete_access_tokens' ) ) {
 			wp_schedule_event( time() + \MONTH_IN_SECONDS, 'twicedaily', 'gu_delete_access_tokens' );
 		}
 
 		add_action( 'gu_delete_access_tokens', [ $this, 'flush_tokens' ] );
+		*/
 	}
 }

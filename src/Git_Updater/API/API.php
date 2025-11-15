@@ -211,17 +211,23 @@ class API {
 				return $response;
 			}
 
-			// Cache HTTP API error code for 60 minutes.
-			if ( ! in_array( $code, $allowed_codes, true ) && ! $cached ) {
-				$timeout = 60;
+		// Cache HTTP API error code for 60 minutes (except for auth errors which should be retried)
+		if ( ! in_array( $code, $allowed_codes, true ) && ! $cached ) {
+			$timeout = 60;
 
-				// Set timeout to GitHub rate limit reset.
-				if ( in_array( $type['git'], [ 'github', 'gist' ], true ) && isset( $response[ md5( $url ) ] ) ) {
-					$timeout = GitHub_API::ratelimit_reset( $response[ md5( $url ) ], $this->type->slug );
-				}
-				$response['timeout'] = ! $timeout ? $response['timeout'] : $timeout;
-				$this->set_repo_cache( 'error_cache', $response, false, "+{$timeout} minutes" );
+			// Set timeout to GitHub rate limit reset.
+			if ( in_array( $type['git'], [ 'github', 'gist' ], true ) && isset( $response[ md5( $url ) ] ) ) {
+				$timeout = GitHub_API::ratelimit_reset( $response[ md5( $url ) ], $this->type->slug );
 			}
+
+			// For 401/403/404 errors (likely private repo), cache for shorter time to allow token fixes
+			if ( in_array( $code, [ 401, 403, 404 ], true ) ) {
+				$timeout = 5; // 5 minutes for auth errors
+			}
+
+			$response['timeout'] = ! $timeout ? $response['timeout'] : $timeout;
+			$this->set_repo_cache( 'error_cache', $response, false, "+{$timeout} minutes" );
+		}
 
 			// If we made it this far API data must be OK, save to avoid extra call above.
 			$this->set_repo_cache( md5( $url ), $response );
@@ -531,9 +537,9 @@ class API {
 	 * @access protected
 	 */
 	protected function add_meta_repo_object() {
-		$this->type->last_updated = $this->type->repo_meta['last_updated'];
+		$this->type->last_updated = $this->type->repo_meta['last_updated'] ?? '';
 		$this->type->added        = $this->type->repo_meta['added'] ?? '';
-		$this->type->is_private   = $this->type->repo_meta['private'];
+		$this->type->is_private   = $this->type->repo_meta['private'] ?? false;
 	}
 
 	/**

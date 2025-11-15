@@ -58,11 +58,14 @@ class Bootstrap {
 		deactivate_plugins( [ 'git-updater-pro/git-updater-pro.php', 'git-updater-additions/git-updater-additions.php' ] );
 
 		require_once __DIR__ . '/Shim.php';
-		( new GU_Freemius() )->init();
+		// Freemius disabled - removed payment wall
+		// ( new GU_Freemius() )->init();
+		$this->init_freemius_stub();
 		( new REST_API() )->load_hooks();
 		( new Additions_Bootstrap() )->run();
 		( new Init() )->run();
-		( new Messages() )->create_error_message( 'get_license' );
+		// Removed license nag message
+		// ( new Messages() )->create_error_message( 'get_license' );
 
 		// Initialize time dissmissible admin notices.
 		new WP_Dismiss_Notice();
@@ -130,6 +133,37 @@ class Bootstrap {
 			$result = move_dir( $plugin_dir . dirname( $slug ), $plugin_dir . 'git-updater', true );
 			if ( is_wp_error( $result ) ) {
 				return $result;
+			}
+		}
+	}
+
+	/**
+	 * Initialize Freemius stub functions to bypass premium checks.
+	 *
+	 * @return void
+	 */
+	public function init_freemius_stub() {
+		if ( ! function_exists( 'gu_fs' ) ) {
+			/**
+			 * Stub function to bypass Freemius premium checks.
+			 *
+			 * @return object
+			 */
+			function gu_fs() {
+				return new class() {
+					public function is_not_paying() {
+						return false; // User is considered "paying" to unlock all features
+					}
+					public function can_use_premium_code() {
+						return true; // All premium features enabled
+					}
+					public function add_filter( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
+						// Stub - do nothing
+					}
+					public function add_action( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
+						// Stub - do nothing
+					}
+				};
 			}
 		}
 	}

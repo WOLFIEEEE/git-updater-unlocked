@@ -41,11 +41,42 @@ API plugins for Bitbucket, GitLab, Gitea, and Gist are available. API plugins ar
 * [Git Updater - Gitea](https://github.com/afragen/git-updater-gitea/releases/latest)
 * [Git Updater - Gist](https://github.com/afragen/git-updater-gist/releases/latest)
 
-### Sponsor
+### 🎉 Fully Free & Unrestricted
 
-Purchase a license at the [Git Updater Store](https://git-updater.com/store/). An unlimited yearly license is very reasonable and allows for authenticated API requests. There is an initial free trial period. After the trial period Git Updater will not be able to make authenticated API requests.
+**This version has been modified to remove all payment walls and premium restrictions.**
 
-You can [sponsor me on GitHub](https://github.com/sponsors/afragen) to help with continued development and support.
+#### What's Included (100% FREE):
+* ✅ **Full Private Repository Support** - No payment required
+* ✅ **Unlimited GitHub Personal Access Tokens** - Never deleted or expired by plugin
+* ✅ **All Features Unlocked** - Branch switching, remote management, REST API
+* ✅ **No License Required** - Complete functionality without any payment
+* ✅ **No Token Deletion** - Your authentication tokens are stored permanently
+* ✅ **Enhanced Error Messages** - Clear guidance for private repo setup
+
+#### Private Repository Setup:
+
+1. **Create GitHub Personal Access Token:**
+   - Go to [GitHub Settings → Tokens](https://github.com/settings/tokens/new?description=Git%20Updater&scopes=repo)
+   - Select the `repo` scope (Full control of private repositories)
+   - Generate and copy the token
+
+2. **Add Token to Git Updater:**
+   - Navigate to WordPress → Settings → Git Updater → GitHub tab
+   - Enter your token in "GitHub.com Access Token" field
+   - Save changes
+
+3. **Refresh Cache:**
+   - Click "Refresh Cache" button
+   - Your private repositories will now sync automatically
+
+#### What Was Removed:
+* ❌ Freemius SDK integration and tracking
+* ❌ License purchase requirements and nag messages
+* ❌ Automatic token deletion for "non-premium" users
+* ❌ Feature restrictions based on payment status
+* ❌ Premium/free tier differentiation
+
+All features that were previously "premium only" are now available to everyone, forever, for free.
 
 ## Slack
 
